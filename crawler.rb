@@ -1,4 +1,5 @@
 require 'capybara/dsl'
+require './mailer'
 # require 'byebug'
 
 Capybara.run_server = false
@@ -52,6 +53,7 @@ def run
     end
 
     # TODO: SEND EMAIL TO ME AND CARLA
+    send_email_about_oinp_updates(pagebody)
   end
   log_end(updated)
 end
