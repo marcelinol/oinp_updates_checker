@@ -1,5 +1,6 @@
 require 'capybara/dsl'
 require './mailer'
+require './custom_logger'
 # require 'byebug'
 
 Capybara.run_server = false
@@ -33,6 +34,9 @@ def log_end(updated)
       file.write(" The OINP has no new updates.\n")
     end
   end
+
+  message_to_log = File.read("run_logs.txt")
+  CustomLogger.new.log(message_to_log)
 end
 
 def run

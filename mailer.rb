@@ -6,7 +6,7 @@ def send_email(from, to, mailtext)
     server_address: 'smtp.gmail.com',
     domain: 'gmail.com',
     username: 'luciano.automatic.email@gmail.com',
-    password: 'email_password',
+    password: ENV['EMAIL_PASSWORD'],
     port: 587,
     authentication: :plain
   }
