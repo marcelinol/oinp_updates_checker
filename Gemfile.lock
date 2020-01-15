@@ -12,6 +12,7 @@ GEM
       regexp_parser (~> 1.5)
       xpath (~> 3.2)
     childprocess (3.0.0)
+    dotenv (2.7.5)
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     nokogiri (1.10.7)
@@ -34,6 +35,7 @@ PLATFORMS
 
 DEPENDENCIES
   capybara
+  dotenv
   selenium-webdriver
   tlsmail
 
