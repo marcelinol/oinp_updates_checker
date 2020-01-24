@@ -1,10 +1,11 @@
 require 'capybara/dsl'
+require 'capybara'
 require './mailer'
 require './custom_logger'
 # require 'byebug'
 
 Capybara.run_server = false
-Capybara.current_driver = :selenium
+Capybara.current_driver = :selenium_headless
 Capybara.app_host = "https://www.ontario.ca/page/2020-ontario-immigrant-nominee-program-updates"
 
 module MyCapybara
