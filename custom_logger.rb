@@ -7,11 +7,11 @@ class CustomLogger
   end
 
   def log_start
-    @file_handler.write_to_run_logs("[#{Time.now}] Crawling started.\n")
+    @file_handler.write_to_run_logs("[#{current_time}] Crawling started.\n")
   end
 
   def log_end(updated)
-    message = "[#{Time.now}] Finished."
+    message = "[#{current_time}] Finished."
     if updated
       message << " The OINP has a new update.\n"
     else
@@ -22,6 +22,12 @@ class CustomLogger
   end
 
   def log_error(error)
-    @file_handler.write_to_run_logs("[#{Time.now}] Crawler failed.\nError: #{error}. \n\n")
+    @file_handler.write_to_run_logs("[#{current_time}] Crawler failed.\nError: #{error}. \n\n")
+  end
+
+  private
+
+  def current_time
+    Time.now.utc.localtime("-05:00")
   end
 end

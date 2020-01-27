@@ -7,9 +7,6 @@ require_relative "file_handler"
 Capybara.run_server = false
 Capybara.current_driver = :selenium_headless
 Capybara.app_host = "https://www.ontario.ca/page/2020-ontario-immigrant-nominee-program-updates"
-PAGEBODY = "#{__dir__}/pagebody.txt".freeze
-LOGS = "#{__dir__}/run_logs.txt".freeze
-DEBUG = "#{__dir__}/debug_older_pagebody.txt".freeze
 
 class Crawler
   include Capybara::DSL
@@ -19,37 +16,35 @@ class Crawler
     @file_handler = FileHandler.new
   end
 
-  def read_page_body
-    visit("/")
-
-    find("#pagebody").text
-  end
-
   def run
     @custom_logger.log_start
-    puts "Starting the crawler"
-    pagebody = Crawler.new.read_page_body
+    pagebody = read_page_body
 
     @file_handler.download_saved_pagebody
     previous_pagebody = File.read(FileHandler::PAGEBODY_LOCAL_PATH)
-    @file_handler.debug("Pagebody from Capybara:\n\n#{pagebody}\n>>>>>>>>>>>>>>>>>>\nPagebody saved in S3:\n\n#{previous_pagebody}")
-    updated = pagebody != previous_pagebody
+    pagebody_changed = pagebody != previous_pagebody
 
-    if updated
+    if pagebody_changed
       @file_handler.save_pagebody_for_debugging
 
-      @file_handler.save_new_pagebody(pagebody.to_s)
+      @file_handler.save_new_pagebody(pagebody)
 
       diff = pagebodies_diff(pagebody, previous_pagebody)
       send_email_about_oinp_updates(diff)
     end
 
-    @custom_logger.log_end(updated)
+    @custom_logger.log_end(pagebody_changed)
   rescue => e
     @custom_logger.log_error(e)
   end
 
   private
+
+  def read_page_body
+    visit("/")
+
+    find("#pagebody").text
+  end
 
   def pagebodies_diff(pagebody, previous_pagebody)
     repetition_starts = (pagebody.length - previous_pagebody.length) + 10 # + 10 because there is the month in the beginning of the pagebody "January" that will always be there.

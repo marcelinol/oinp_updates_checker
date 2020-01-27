@@ -8,12 +8,9 @@ class FileHandler
   PAGEBODY_FILENAME = "pagebody.txt".freeze
   LOGS_FILENAME = "run_logs.txt".freeze
   PAGEBODY_DEBUG_FILENAME = "debug_older_pagebody.txt".freeze
-  DEBUG_FILENAME = "debug.txt".freeze
 
   PAGEBODY_LOCAL_PATH = "#{__dir__}/data/#{PAGEBODY_FILENAME}".freeze
   LOGS_LOCAL_PATH = "#{__dir__}/data/#{LOGS_FILENAME}".freeze
-  DEBUG_LOCAL_PATH = "#{__dir__}/data/#{DEBUG_FILENAME}".freeze
-
 
   def initialize
     Aws.config.update(
@@ -51,13 +48,5 @@ class FileHandler
     end
 
     object.upload_file(LOGS_LOCAL_PATH)
-  end
-
-  def debug(message)
-    File.open(DEBUG_LOCAL_PATH, "w") do |file|
-      file.write(message)
-    end
-    object = @bucket.object(DEBUG_FILENAME)
-    object.upload_file(DEBUG_LOCAL_PATH)
   end
 end
