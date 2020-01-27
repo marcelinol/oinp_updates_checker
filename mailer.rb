@@ -35,7 +35,7 @@ def send_email_about_oinp_updates(updates)
   message = <<~MESSAGE_END
     From: Luciano <#{ENV["EMAIL_ADDRESS"]}>
     To: Luciano <#{ENV["MAIL_TO_ADDRESS"]}>
-    Subject: There are OINP Updates!
+    Subject: OINP Update!
 
     Your system identified a change in the OINP 2020 updates page. Please check it out.
     link: https://www.ontario.ca/page/2020-ontario-immigrant-nominee-program-updates

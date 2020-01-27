@@ -28,11 +28,11 @@ class FileHandler
 
   def save_pagebody_for_debugging
     object = @bucket.object(DEBUG_FILENAME)
-    object.upload_file(PAGEBODY_FILENAME)
+    object.upload_file(PAGEBODY_LOCAL_PATH)
   end
 
   def save_new_pagebody(pagebody)
-    object = @bucket.object(PAGEBODY)
+    object = @bucket.object(PAGEBODY_FILENAME)
     File.open(PAGEBODY_LOCAL_PATH, "w") do |file|
       file.write(pagebody)
     end

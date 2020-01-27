@@ -31,7 +31,7 @@ class Crawler
     pagebody = Crawler.new.read_page_body
 
     @file_handler.download_saved_pagebody
-    previous_pagebody = File.read(FileHandler::PAGEBODY_FILENAME)
+    previous_pagebody = File.read(FileHandler::PAGEBODY_LOCAL_PATH)
     updated = pagebody != previous_pagebody
     puts "was the page updated? #{updated}"
 
