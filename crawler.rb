@@ -1,7 +1,8 @@
-require 'capybara/dsl'
-require 'capybara'
-require_relative 'mailer'
-require_relative 'custom_logger'
+require "capybara/dsl"
+require "capybara"
+require_relative "mailer"
+require_relative "custom_logger"
+require_relative "file_handler"
 
 Capybara.run_server = false
 Capybara.current_driver = :selenium_headless
@@ -10,54 +11,50 @@ PAGEBODY = "#{__dir__}/pagebody.txt".freeze
 LOGS = "#{__dir__}/run_logs.txt".freeze
 DEBUG = "#{__dir__}/debug_older_pagebody.txt".freeze
 
+class Crawler
+  include Capybara::DSL
 
-module MyCapybara
-  class Crawler
-    include Capybara::DSL
-
-    def read_page_body
-      visit("/")
-
-      find("#pagebody").text
-    end
-  end
-end
-
-def run
-  custom_logger = CustomLogger.new
-  custom_logger.log_start
-  puts "Starting the crawler"
-  begin
-    crawler = MyCapybara::Crawler.new
-    pagebody = crawler.read_page_body
-  rescue => e
-    custom_logger.log_error(e)
+  def initialize
+    @custom_logger = CustomLogger.new
+    @file_handler = FileHandler.new
   end
 
-  previous_pagebody = File.read(PAGEBODY)
-  updated = pagebody != previous_pagebody
-  puts "was the page updated? #{updated}"
+  def read_page_body
+    visit("/")
 
-  if updated
-    begin
-      # Save the older pagebody just for debugging purposes
-      File.open(DEBUG, "w") do |file|
-        file.write("#{previous_pagebody}")
-      end
+    find("#pagebody").text
+  end
 
-      # Updates the file with the current pagebody
-      File.open(PAGEBODY, "w") do |file|
-        file.write("#{pagebody}")
-      end
+  def run
+    @custom_logger.log_start
+    puts "Starting the crawler"
+    pagebody = Crawler.new.read_page_body
 
-      repetition_starts = (pagebody.length - previous_pagebody.length) + 10 # + 10 because there is the month in the beginning of the pagebody "January" that will always be there.
-      diff = pagebody[0..repetition_starts] + " (...)"
+    @file_handler.download_saved_pagebody
+    previous_pagebody = File.read(FileHandler::PAGEBODY_FILENAME)
+    updated = pagebody != previous_pagebody
+    puts "was the page updated? #{updated}"
+
+    if updated
+      @file_handler.save_pagebody_for_debugging
+
+      @file_handler.save_new_pagebody(pagebody)
+
+      diff = pagebodies_diff(pagebody, previous_pagebody)
       send_email_about_oinp_updates(diff)
-    rescue => e
-      custom_logger.log_error(e)
     end
+
+    @custom_logger.log_end(updated)
+  rescue => e
+    @custom_logger.log_error(e)
   end
-  custom_logger.log_end(updated)
+
+  private
+
+  def pagebodies_diff(pagebody, previous_pagebody)
+    repetition_starts = (pagebody.length - previous_pagebody.length) + 10 # + 10 because there is the month in the beginning of the pagebody "January" that will always be there.
+    pagebody[0..repetition_starts] + " (...)"
+  end
 end
 
-run
+Crawler.new.run

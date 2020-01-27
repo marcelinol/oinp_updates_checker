@@ -1,5 +1,6 @@
 require_relative "file_handler"
 
+# Should this class log everything locally and later send the file to S3?
 class CustomLogger
   def initialize
     @file_handler = FileHandler.new
