@@ -7,7 +7,7 @@ def send_email(from, to, mailtext)
   configs = {
     server_address: 'smtp.gmail.com',
     domain: 'gmail.com',
-    username: 'luciano.automatic.email@gmail.com',
+    username: ENV['EMAIL_ADDRESS'],
     password: ENV['EMAIL_PASSWORD'],
     port: 587,
     authentication: :plain
@@ -32,8 +32,8 @@ end
 
 def send_email_about_oinp_updates(updates)
   message = <<~MESSAGE_END
-    From: Luciano <marcelinolucianom@gmail.com>
-    To: Luciano <marcelinolucianom@gmail.com>
+    From: Luciano <#{ENV["EMAIL_ADDRESS"]}>
+    To: Luciano <#{ENV["MAIL_TO_ADDRESS"]}>
     Subject: There are OINP Updates!
 
     Your system identified a change in the OINP 2020 updates page. Please check it out.
@@ -44,5 +44,5 @@ def send_email_about_oinp_updates(updates)
 
   MESSAGE_END
 
-  send_email('luciano.automatic.email@gmail.com', 'marcelinolucianom@gmail.com', message)
+  send_email(ENV["EMAIL_ADDRESS"], ENV["MAIL_TO_ADDRESS"], message)
 end
