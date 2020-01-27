@@ -54,11 +54,17 @@ end
 def run
   log_start
   puts "Starting the crawler"
-  crawler = MyCapybara::Crawler.new
-  pagebody = crawler.read_page_body
+  begin
+    crawler = MyCapybara::Crawler.new
+    pagebody = crawler.read_page_body
+  rescue => e
+    log_error(e)
+  end
+
   previous_pagebody = File.read(PAGEBODY)
   updated = pagebody != previous_pagebody
   puts "was the page updated? #{updated}"
+
   if updated
     begin
       # Save the older pagebody just for debugging purposes
