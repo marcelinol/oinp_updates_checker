@@ -39,6 +39,13 @@ def log_end(updated)
   CustomLogger.new.log(message_to_log)
 end
 
+def log_error(error)
+  File.open("#{__dir__}/run_logs.txt", "a") do |file|
+    file.write("Crawler failed at #{Time.now}.")
+    file.write(" Error: #{error}. \n")
+  end
+end
+
 def run
   log_start
   crawler = MyCapybara::Crawler.new
@@ -46,19 +53,23 @@ def run
   previous_pagebody = File.read("#{__dir__}/pagebody.txt")
   updated = pagebody != previous_pagebody
   if updated
-    # Save the older pagebody just for debugging purposes
-    File.open("#{__dir__}/debug_older_pagebody.txt", "w") do |file|
-      file.write("#{previous_pagebody}")
-    end
+    begin
+      # Save the older pagebody just for debugging purposes
+      File.open("#{__dir__}/debug_older_pagebody.txt", "w") do |file|
+        file.write("#{previous_pagebody}")
+      end
 
-    # Updates the file with the current pagebody
-    File.open("#{__dir__}/pagebody.txt", "w") do |file|
-      file.write("#{pagebody}")
-    end
+      # Updates the file with the current pagebody
+      File.open("#{__dir__}/pagebody.txt", "w") do |file|
+        file.write("#{pagebody}")
+      end
 
-    repetition_starts = (pagebody.length - previous_pagebody.length) + 10 # + 10 because there is the month in the beginning of the pagebody "January" that will always be there.
-    diff = pagebody[0..repetition_starts] + " (...)"
-    send_email_about_oinp_updates(diff)
+      repetition_starts = (pagebody.length - previous_pagebody.length) + 10 # + 10 because there is the month in the beginning of the pagebody "January" that will always be there.
+      diff = pagebody[0..repetition_starts] + " (...)"
+      send_email_about_oinp_updates(diff)
+    rescue => e
+      log_error(e)
+    end
   end
   log_end(updated)
 end
