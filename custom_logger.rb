@@ -1,19 +1,26 @@
-require 'json'
-require 'net/http'
+require_relative "file_handler"
 
 class CustomLogger
-  def initialize(url_to_post = 'https://eni5fufeecmhj.x.pipedream.net/')
-    @url =  url_to_post
+  def initialize
+    @file_handler = FileHandler.new
   end
 
-  def log(message)
-    uri = URI(@url)
-    req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
+  def log_start
+    @file_handler.write_to_run_logs("[#{Time.now}] Crawling started.\n")
+  end
 
-    req.body = { "message": message }.to_json
-
-    Net::HTTP.start(uri.hostname, uri.port, :use_ssl => uri.scheme == 'https') do |http|
-      http.request(req)
+  def log_end(updated)
+    message = "[#{Time.now}] Finished."
+    if updated
+      message << " The OINP has a new update.\n"
+    else
+      message << " The OINP has no new updates.\n"
     end
+    message << "\n"
+    @file_handler.write_to_run_logs(message)
+  end
+
+  def log_error(error)
+    @file_handler.write_to_run_logs("[#{Time.now}] Crawler failed.\nError: #{error}. \n\n")
   end
 end

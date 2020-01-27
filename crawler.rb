@@ -23,42 +23,15 @@ module MyCapybara
   end
 end
 
-def log_start
-  File.open(DEBUG, "a") do |file|
-    file.write("[#{Time.now}] Crawling started.\n")
-  end
-end
-
-def log_end(updated)
-  File.open(DEBUG, "a") do |file|
-    file.write("[#{Time.now}] Finished.")
-    if updated
-      file.write(" The OINP has a new update.\n")
-    else
-      file.write(" The OINP has no new updates.\n")
-    end
-    file.write("\n")
-  end
-
-  message_to_log = File.read(DEBUG)
-  CustomLogger.new.log(message_to_log)
-end
-
-def log_error(error)
-  File.open(DEBUG, "a") do |file|
-    file.write("[#{Time.now}] Crawler failed.\n")
-    file.write("Error: #{error}. \n\n")
-  end
-end
-
 def run
-  log_start
+  custom_logger = CustomLogger.new
+  custom_logger.log_start
   puts "Starting the crawler"
   begin
     crawler = MyCapybara::Crawler.new
     pagebody = crawler.read_page_body
   rescue => e
-    log_error(e)
+    custom_logger.log_error(e)
   end
 
   previous_pagebody = File.read(PAGEBODY)
@@ -68,7 +41,7 @@ def run
   if updated
     begin
       # Save the older pagebody just for debugging purposes
-      File.open("#{__dir__}/debug_older_pagebody.txt", "w") do |file|
+      File.open(DEBUG, "w") do |file|
         file.write("#{previous_pagebody}")
       end
 
@@ -81,10 +54,10 @@ def run
       diff = pagebody[0..repetition_starts] + " (...)"
       send_email_about_oinp_updates(diff)
     rescue => e
-      log_error(e)
+      custom_logger.log_error(e)
     end
   end
-  log_end(updated)
+  custom_logger.log_end(updated)
 end
 
 run
