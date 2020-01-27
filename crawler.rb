@@ -35,7 +35,7 @@ def log_end(updated)
     end
   end
 
-  message_to_log = File.read("run_logs.txt")
+  message_to_log = File.read("#{__dir__}/run_logs.txt")
   CustomLogger.new.log(message_to_log)
 end
 
