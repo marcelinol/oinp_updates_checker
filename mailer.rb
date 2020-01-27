@@ -31,6 +31,7 @@ def send_email(from, to, mailtext)
 end
 
 def send_email_about_oinp_updates(updates)
+  puts "sending email"
   message = <<~MESSAGE_END
     From: Luciano <#{ENV["EMAIL_ADDRESS"]}>
     To: Luciano <#{ENV["MAIL_TO_ADDRESS"]}>

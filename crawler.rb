@@ -21,18 +21,19 @@ end
 
 def log_start
   File.open("#{__dir__}/run_logs.txt", "a") do |file|
-    file.write("Crawling started at #{Time.now}. ")
+    file.write("[#{Time.now}] Crawling started.\n")
   end
 end
 
 def log_end(updated)
   File.open("#{__dir__}/run_logs.txt", "a") do |file|
-    file.write("Finished at #{Time.now}.")
+    file.write("[#{Time.now}] Finished.")
     if updated
       file.write(" The OINP has a new update.\n")
     else
       file.write(" The OINP has no new updates.\n")
     end
+    file.write("\n")
   end
 
   message_to_log = File.read("#{__dir__}/run_logs.txt")
@@ -41,17 +42,19 @@ end
 
 def log_error(error)
   File.open("#{__dir__}/run_logs.txt", "a") do |file|
-    file.write("Crawler failed at #{Time.now}.")
-    file.write(" Error: #{error}. \n")
+    file.write("[#{Time.now}] Crawler failed.\n")
+    file.write("Error: #{error}. \n\n")
   end
 end
 
 def run
   log_start
+  puts "Starting the crawler"
   crawler = MyCapybara::Crawler.new
   pagebody = crawler.read_page_body
   previous_pagebody = File.read("#{__dir__}/pagebody.txt")
   updated = pagebody != previous_pagebody
+  puts "was the page updated? #{updated}"
   if updated
     begin
       # Save the older pagebody just for debugging purposes
