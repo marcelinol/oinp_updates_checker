@@ -1,2 +1,5 @@
 .byebug_history
 .env
+pagebody.txt
+debug_older_pagebody.txt
+run_logs.txt
