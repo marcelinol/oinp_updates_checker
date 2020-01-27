@@ -56,7 +56,6 @@ def run
       file.write("#{pagebody}")
     end
 
-    # TODO: SEND EMAIL TO ME AND CARLA
     repetition_starts = (pagebody.length - previous_pagebody.length) + 10 # + 10 because there is the month in the beginning of the pagebody "January" that will always be there.
     diff = pagebody[0..repetition_starts] + " (...)"
     send_email_about_oinp_updates(diff)

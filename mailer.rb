@@ -32,22 +32,17 @@ end
 
 def send_email_about_oinp_updates(updates)
   message = <<~MESSAGE_END
-  From: Luciano <marcelinolucianom@gmail.com>
-  To: Luciano <marcelinolucianom@gmail.com>
-  Subject: There are OINP Updates!
+    From: Luciano <marcelinolucianom@gmail.com>
+    To: Luciano <marcelinolucianom@gmail.com>
+    Subject: There are OINP Updates!
 
-  Your system identified a change in the OINP 2020 updates page. Please check it out.
-  link: https://www.ontario.ca/page/2020-ontario-immigrant-nominee-program-updates
+    Your system identified a change in the OINP 2020 updates page. Please check it out.
+    link: https://www.ontario.ca/page/2020-ontario-immigrant-nominee-program-updates
 
-  new pagebody:
-  #{updates}
+    new pagebody:
+    #{updates}
 
   MESSAGE_END
 
   send_email('luciano.automatic.email@gmail.com', 'marcelinolucianom@gmail.com', message)
 end
-
-
-# Net::SMTP.start('localhost', 25) do |smtp|
-#   smtp.send_message message, 'marcelinolucianom@gmail.com', 'marcelinolucianom@gmail.com'
-# end
