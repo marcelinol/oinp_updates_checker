@@ -32,13 +32,13 @@ class Crawler
 
     @file_handler.download_saved_pagebody
     previous_pagebody = File.read(FileHandler::PAGEBODY_LOCAL_PATH)
+    @file_handler.debug("Pagebody from Capybara:\n\n#{pagebody}\n>>>>>>>>>>>>>>>>>>\nPagebody saved in S3:\n\n#{previous_pagebody}")
     updated = pagebody != previous_pagebody
-    puts "was the page updated? #{updated}"
 
     if updated
       @file_handler.save_pagebody_for_debugging
 
-      @file_handler.save_new_pagebody(pagebody)
+      @file_handler.save_new_pagebody(pagebody.to_s)
 
       diff = pagebodies_diff(pagebody, previous_pagebody)
       send_email_about_oinp_updates(diff)
