@@ -1,7 +1,7 @@
 require 'net/smtp'
 require 'tlsmail'
 require 'dotenv'
-Dotenv.load
+Dotenv.load("#{__dir__}/.env")
 
 def send_email(from, to, mailtext)
   configs = {

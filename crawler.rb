@@ -1,8 +1,7 @@
 require 'capybara/dsl'
 require 'capybara'
-require './mailer'
-require './custom_logger'
-# require 'byebug'
+require_relative 'mailer'
+require_relative 'custom_logger'
 
 Capybara.run_server = false
 Capybara.current_driver = :selenium_headless
@@ -21,13 +20,13 @@ module MyCapybara
 end
 
 def log_start
-  File.open("run_logs.txt", "a") do |file|
+  File.open("#{__dir__}/run_logs.txt", "a") do |file|
     file.write("Crawling started at #{Time.now}. ")
   end
 end
 
 def log_end(updated)
-  File.open("run_logs.txt", "a") do |file|
+  File.open("#{__dir__}/run_logs.txt", "a") do |file|
     file.write("Finished at #{Time.now}.")
     if updated
       file.write(" The OINP has a new update.\n")
@@ -44,16 +43,16 @@ def run
   log_start
   crawler = MyCapybara::Crawler.new
   pagebody = crawler.read_page_body
-  previous_pagebody = File.read("pagebody.txt")
+  previous_pagebody = File.read("#{__dir__}/pagebody.txt")
   updated = pagebody != previous_pagebody
   if updated
     # Save the older pagebody just for debugging purposes
-    File.open("debug_older_pagebody.txt", "w") do |file|
+    File.open("#{__dir__}/debug_older_pagebody.txt", "w") do |file|
       file.write("#{previous_pagebody}")
     end
 
     # Updates the file with the current pagebody
-    File.open("pagebody.txt", "w") do |file|
+    File.open("#{__dir__}/pagebody.txt", "w") do |file|
       file.write("#{pagebody}")
     end
 
