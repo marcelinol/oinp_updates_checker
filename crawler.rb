@@ -6,6 +6,10 @@ require_relative 'custom_logger'
 Capybara.run_server = false
 Capybara.current_driver = :selenium_headless
 Capybara.app_host = "https://www.ontario.ca/page/2020-ontario-immigrant-nominee-program-updates"
+PAGEBODY = "#{__dir__}/pagebody.txt".freeze
+LOGS = "#{__dir__}/run_logs.txt".freeze
+DEBUG = "#{__dir__}/debug_older_pagebody.txt".freeze
+
 
 module MyCapybara
   class Crawler
@@ -20,13 +24,13 @@ module MyCapybara
 end
 
 def log_start
-  File.open("#{__dir__}/run_logs.txt", "a") do |file|
+  File.open(DEBUG, "a") do |file|
     file.write("[#{Time.now}] Crawling started.\n")
   end
 end
 
 def log_end(updated)
-  File.open("#{__dir__}/run_logs.txt", "a") do |file|
+  File.open(DEBUG, "a") do |file|
     file.write("[#{Time.now}] Finished.")
     if updated
       file.write(" The OINP has a new update.\n")
@@ -36,12 +40,12 @@ def log_end(updated)
     file.write("\n")
   end
 
-  message_to_log = File.read("#{__dir__}/run_logs.txt")
+  message_to_log = File.read(DEBUG)
   CustomLogger.new.log(message_to_log)
 end
 
 def log_error(error)
-  File.open("#{__dir__}/run_logs.txt", "a") do |file|
+  File.open(DEBUG, "a") do |file|
     file.write("[#{Time.now}] Crawler failed.\n")
     file.write("Error: #{error}. \n\n")
   end
@@ -52,7 +56,7 @@ def run
   puts "Starting the crawler"
   crawler = MyCapybara::Crawler.new
   pagebody = crawler.read_page_body
-  previous_pagebody = File.read("#{__dir__}/pagebody.txt")
+  previous_pagebody = File.read(PAGEBODY)
   updated = pagebody != previous_pagebody
   puts "was the page updated? #{updated}"
   if updated
@@ -63,7 +67,7 @@ def run
       end
 
       # Updates the file with the current pagebody
-      File.open("#{__dir__}/pagebody.txt", "w") do |file|
+      File.open(PAGEBODY, "w") do |file|
         file.write("#{pagebody}")
       end
 
