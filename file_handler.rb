@@ -33,7 +33,7 @@ class FileHandler
 
   def save_new_pagebody(pagebody)
     object = @bucket.object(PAGEBODY_FILENAME)
-    File.open(PAGEBODY_LOCAL_PATH, "w") do |file|
+    File.open(PAGEBODY_LOCAL_PATH, "w:UTF-8") do |file|
       file.write(pagebody)
     end
     object.upload_file(PAGEBODY_LOCAL_PATH)

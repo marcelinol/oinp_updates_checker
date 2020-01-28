@@ -21,7 +21,7 @@ class Crawler
     pagebody = read_page_body
 
     @file_handler.download_saved_pagebody
-    previous_pagebody = File.read(FileHandler::PAGEBODY_LOCAL_PATH)
+    previous_pagebody = File.open(FileHandler::PAGEBODY_LOCAL_PATH, "r:UTF-8", &:read)
     pagebody_changed = pagebody != previous_pagebody
 
     if pagebody_changed
