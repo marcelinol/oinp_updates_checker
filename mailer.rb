@@ -1,9 +1,10 @@
 require 'net/smtp'
 require 'tlsmail'
+require_relative "file_handler"
 require 'dotenv'
 Dotenv.load("#{__dir__}/.env")
 
-def send_email(from, to, mailtext)
+def send_email(from, mailtext, to)
   configs = {
     server_address: 'smtp.gmail.com',
     domain: 'gmail.com',
@@ -34,7 +35,7 @@ def send_email_about_oinp_updates(updates)
   puts "sending email"
   message = <<~MESSAGE_END
     From: Luciano <#{ENV["EMAIL_ADDRESS"]}>
-    To: Luciano <#{ENV["MAIL_TO_ADDRESS"]}>
+    To:
     Subject: OINP Update!
 
     Your system identified a change in the OINP 2020 updates page. Please check it out.
@@ -45,5 +46,8 @@ def send_email_about_oinp_updates(updates)
 
   MESSAGE_END
 
-  send_email(ENV["EMAIL_ADDRESS"], ENV["MAIL_TO_ADDRESS"], message)
+  FileHandler.new.download_users
+
+  mails_to = File.open(FileHandler::USERS_LOCAL_PATH, "r:UTF-8", &:read).split(",")
+  send_email(ENV["EMAIL_ADDRESS"], message, mails_to)
 end
