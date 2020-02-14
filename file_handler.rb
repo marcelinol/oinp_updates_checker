@@ -8,9 +8,11 @@ class FileHandler
   PAGEBODY_FILENAME = "pagebody.txt".freeze
   LOGS_FILENAME = "run_logs.txt".freeze
   PAGEBODY_DEBUG_FILENAME = "debug_older_pagebody.txt".freeze
+  USERS_FILENAME = "users.txt".freeze
 
   PAGEBODY_LOCAL_PATH = "#{__dir__}/data/#{PAGEBODY_FILENAME}".freeze
   LOGS_LOCAL_PATH = "#{__dir__}/data/#{LOGS_FILENAME}".freeze
+  USERS_LOCAL_PATH = "#{__dir__}/data/#{USERS_FILENAME}".freeze
 
   def initialize
     Aws.config.update(
@@ -48,5 +50,10 @@ class FileHandler
     end
 
     object.upload_file(LOGS_LOCAL_PATH)
+  end
+  
+  def download_users
+    object = @bucket.object(USERS_FILENAME)
+    object.get(response_target: USERS_LOCAL_PATH)
   end
 end
