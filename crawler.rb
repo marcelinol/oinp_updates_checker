@@ -12,8 +12,8 @@ class Crawler
   include Capybara::DSL
 
   def initialize
-    @custom_logger = CustomLogger.new
     @file_handler = FileHandler.new
+    @custom_logger = CustomLogger.new(@file_handler)
   end
 
   def run
