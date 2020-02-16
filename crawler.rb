@@ -19,27 +19,42 @@ class Crawler
 
   def run
     @custom_logger.log_start
-    pagebody = read_page_body
 
-    @file_handler.download_saved_pagebody
-    previous_pagebody = File.open(@file_handler.local_path(filename: FileHandler::PAGEBODY_FILENAME), "r:UTF-8", &:read)
-    pagebody_changed = pagebody != previous_pagebody
-
-    if pagebody_changed
-      @file_handler.save_pagebody_for_debugging
-
-      @file_handler.save_new_pagebody(pagebody)
-
-      diff = pagebodies_diff(pagebody, previous_pagebody)
-      @mailer.send_email_about_oinp_updates(diff)
+    page_body = page_body_changed
+    if page_body.changed
+      save_page_body(page_body.current)
+      send_email(page_body)
     end
 
-    @custom_logger.log_end(pagebody_changed)
+    @custom_logger.log_end(page_body.changed)
   rescue => e
     @custom_logger.log_error(e)
   end
 
   private
+
+  def send_email(page_body)
+    diff = pagebodies_diff(page_body.current, page_body.previous)
+    @mailer.send_email_about_oinp_updates(diff)
+  end
+
+  def save_page_body(current_page_body)
+    @file_handler.save_pagebody_for_debugging
+    @file_handler.save_new_pagebody(current_page_body)
+  end
+
+  def page_body_changed
+    pagebody = read_page_body
+
+    @file_handler.download_saved_pagebody
+    previous_pagebody = File.open(@file_handler.local_path(filename: FileHandler::PAGEBODY_FILENAME), "r:UTF-8", &:read)
+    pagebody_changed = pagebody != previous_pagebody
+    return OpenStruct.new({
+      current: pagebody,
+      previous: previous_pagebody,
+      changed: pagebody_changed
+    })
+  end
 
   def read_page_body
     visit("/")
