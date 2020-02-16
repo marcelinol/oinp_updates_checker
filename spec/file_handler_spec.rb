@@ -11,7 +11,7 @@ RSpec.describe "FileHandler" do
     end
   end
 
-  describe "#save_pagebody_for_debugging" do
+  describe "#save_pagebody_remote" do
     it "uploads pagebody to AWS S3" do
       bucket = double("bucket")
 
@@ -26,7 +26,7 @@ RSpec.describe "FileHandler" do
           .with(FileHandler::PAGEBODY_DEBUG_FILENAME)
           .and_return(object)
 
-      file_handler.save_pagebody_for_debugging
+      file_handler.save_pagebody_remote(filename: FileHandler::PAGEBODY_DEBUG_FILENAME)
 
       expect(object)
         .to have_received(:upload_file)
@@ -35,12 +35,21 @@ RSpec.describe "FileHandler" do
     end
   end
 
-  it "#save_new_pagebody_local" do
+  it "#save_pagebody_local" do
     clean_file(file_handler.local_path(filename: FileHandler::PAGEBODY_FILENAME))
 
-    file_handler.save_new_pagebody_local("xunda")
+    file_handler.save_pagebody_local("xunda")
 
     content = File.open(file_handler.local_path(filename: FileHandler::PAGEBODY_FILENAME), "r:UTF-8", &:read)
+    expect(content).to match(/xunda/)
+  end
+
+  it "#write_to_run_logs_local" do
+    clean_file(file_handler.local_path(filename: FileHandler::LOGS_FILENAME))
+
+    file_handler.write_to_run_logs_local("xunda")
+
+    content = File.open(file_handler.local_path(filename: FileHandler::LOGS_FILENAME), "r:UTF-8", &:read)
     expect(content).to match(/xunda/)
   end
 

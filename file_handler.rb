@@ -32,7 +32,7 @@ class FileHandler
     object.upload_file(local_path(filename: PAGEBODY_FILENAME))
   end
 
-  def save_new_pagebody_local(pagebody)
+  def save_pagebody_local(pagebody)
     File.open(local_path(filename: PAGEBODY_FILENAME), "w:UTF-8") do |file|
       file.write(pagebody)
     end
@@ -46,15 +46,24 @@ class FileHandler
     object.upload_file(local_path(filename: PAGEBODY_FILENAME))
   end
 
+  def save_pagebody_remote(filename: PAGEBODY_FILENAME)
+    object = @bucket.object(filename)
+    object.upload_file(local_path(filename: PAGEBODY_FILENAME))
+  end
+
   def write_to_run_logs(message)
     object = @bucket.object(LOGS_FILENAME)
     object.get(response_target: LOGS_LOCAL_PATH)
 
+    write_to_run_logs_local(message)
+
+    object.upload_file(LOGS_LOCAL_PATH)
+  end
+
+  def write_to_run_logs_local(message)
     File.open(LOGS_LOCAL_PATH, "a") do |file|
       file.write(message)
     end
-
-    object.upload_file(LOGS_LOCAL_PATH)
   end
   
   def download_users
