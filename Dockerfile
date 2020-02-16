@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y firefox-esr wget
 
 ADD . /crawler
 WORKDIR /crawler
-RUN bundle install
+RUN bundle install --without development test
 
 # Install geckodriver
 RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz
