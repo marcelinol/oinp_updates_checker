@@ -44,13 +44,37 @@ RSpec.describe "FileHandler" do
     expect(content).to match(/xunda/)
   end
 
-  it "#write_to_run_logs_local" do
-    clean_file(file_handler.local_path(filename: FileHandler::LOGS_FILENAME))
+  describe "#write_to_run_logs" do
+    it "#download_logs" do
+      bucket = double("bucket")
 
-    file_handler.write_to_run_logs_local("xunda")
+      allow_any_instance_of(Aws::S3::Resource)
+        .to receive(:bucket)
+          .with(FileHandler::BUCKET)
+          .and_return(bucket)
 
-    content = File.open(file_handler.local_path(filename: FileHandler::LOGS_FILENAME), "r:UTF-8", &:read)
-    expect(content).to match(/xunda/)
+      object = spy("object")
+      allow(bucket)
+        .to receive(:object)
+          .with(FileHandler::LOGS_FILENAME)
+          .and_return(object)
+
+      file_handler.download_logs
+
+      expect(object)
+        .to have_received(:get)
+          .with(response_target: file_handler.local_path(filename: FileHandler::LOGS_FILENAME))
+          .once
+    end
+
+    it "#write_to_run_logs_local" do
+      clean_file(file_handler.local_path(filename: FileHandler::LOGS_FILENAME))
+
+      file_handler.write_to_run_logs_local("xunda")
+
+      content = File.open(file_handler.local_path(filename: FileHandler::LOGS_FILENAME), "r:UTF-8", &:read)
+      expect(content).to match(/xunda/)
+    end
   end
 
   def clean_file(file_path)

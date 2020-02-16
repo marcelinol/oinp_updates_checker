@@ -10,7 +10,6 @@ class FileHandler
   PAGEBODY_DEBUG_FILENAME = "debug_older_pagebody.txt".freeze
   USERS_FILENAME = "users.txt".freeze
 
-  LOGS_LOCAL_PATH = "#{__dir__}/data/#{LOGS_FILENAME}".freeze
   USERS_LOCAL_PATH = "#{__dir__}/data/#{USERS_FILENAME}".freeze
 
   def initialize
@@ -51,17 +50,22 @@ class FileHandler
     object.upload_file(local_path(filename: PAGEBODY_FILENAME))
   end
 
+  # LOCAL & REMOTE
   def write_to_run_logs(message)
-    object = @bucket.object(LOGS_FILENAME)
-    object.get(response_target: LOGS_LOCAL_PATH)
+    download_logs
 
     write_to_run_logs_local(message)
 
-    object.upload_file(LOGS_LOCAL_PATH)
+    object.upload_file(local_path(filename: LOGS_FILENAME))
+  end
+
+  def download_logs
+    object = @bucket.object(LOGS_FILENAME)
+    object.get(response_target: local_path(filename: LOGS_FILENAME))
   end
 
   def write_to_run_logs_local(message)
-    File.open(LOGS_LOCAL_PATH, "a") do |file|
+    File.open(local_path(filename: LOGS_FILENAME), "a") do |file|
       file.write(message)
     end
   end
