@@ -11,9 +11,10 @@ Capybara.app_host = "https://www.ontario.ca/page/2020-ontario-immigrant-nominee-
 class Crawler
   include Capybara::DSL
 
-  def initialize
-    @file_handler = FileHandler.new
-    @custom_logger = CustomLogger.new(@file_handler)
+  def initialize(file_handler, custom_logger, mailer)
+    @file_handler = file_handler
+    @custom_logger = custom_logger
+    @mailer = mailer
   end
 
   def run
@@ -30,7 +31,7 @@ class Crawler
       @file_handler.save_new_pagebody(pagebody)
 
       diff = pagebodies_diff(pagebody, previous_pagebody)
-      send_email_about_oinp_updates(diff)
+      @mailer.send_email_about_oinp_updates(diff)
     end
 
     @custom_logger.log_end(pagebody_changed)
@@ -52,4 +53,8 @@ class Crawler
   end
 end
 
-Crawler.new.run
+# RUN
+file_handler = FileHandler.new
+custom_logger = CustomLogger.new(file_handler)
+mailer = OinpMailer.new
+Crawler.new(file_handler, custom_logger, mailer).run

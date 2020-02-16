@@ -125,6 +125,7 @@ RSpec.describe "FileHandler" do
       expect(content).to match(/February 13/)
     end
   end
+
   def clean_file(file_path)
     File.open(file_path, "w:UTF-8") do |file|
       file.write("")
