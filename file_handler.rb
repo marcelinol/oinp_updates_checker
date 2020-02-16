@@ -10,7 +10,6 @@ class FileHandler
   PAGEBODY_DEBUG_FILENAME = "debug_older_pagebody.txt".freeze
   USERS_FILENAME = "users.txt".freeze
 
-  PAGEBODY_LOCAL_PATH = "#{__dir__}/data/#{PAGEBODY_FILENAME}".freeze
   LOGS_LOCAL_PATH = "#{__dir__}/data/#{LOGS_FILENAME}".freeze
   USERS_LOCAL_PATH = "#{__dir__}/data/#{USERS_FILENAME}".freeze
 
@@ -25,20 +24,26 @@ class FileHandler
 
   def download_saved_pagebody
     object = @bucket.object(PAGEBODY_FILENAME)
-    object.get(response_target: PAGEBODY_LOCAL_PATH)
+    object.get(response_target: local_path(filename: PAGEBODY_FILENAME))
   end
 
   def save_pagebody_for_debugging
     object = @bucket.object(PAGEBODY_DEBUG_FILENAME)
-    object.upload_file(PAGEBODY_LOCAL_PATH)
+    object.upload_file(local_path(filename: PAGEBODY_FILENAME))
+  end
+
+  def save_new_pagebody_local(pagebody)
+    File.open(local_path(filename: PAGEBODY_FILENAME), "w:UTF-8") do |file|
+      file.write(pagebody)
+    end
   end
 
   def save_new_pagebody(pagebody)
     object = @bucket.object(PAGEBODY_FILENAME)
-    File.open(PAGEBODY_LOCAL_PATH, "w:UTF-8") do |file|
+    File.open(local_path(filename: PAGEBODY_FILENAME), "w:UTF-8") do |file|
       file.write(pagebody)
     end
-    object.upload_file(PAGEBODY_LOCAL_PATH)
+    object.upload_file(local_path(filename: PAGEBODY_FILENAME))
   end
 
   def write_to_run_logs(message)
@@ -55,5 +60,9 @@ class FileHandler
   def download_users
     object = @bucket.object(USERS_FILENAME)
     object.get(response_target: USERS_LOCAL_PATH)
+  end
+
+  def local_path(root: __dir__, filename:)
+    "#{root}/data/#{filename}"
   end
 end
