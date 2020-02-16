@@ -46,8 +46,10 @@ def send_email_about_oinp_updates(updates)
 
   MESSAGE_END
 
-  FileHandler.new.download_users
+  file_handler = FileHandler.new
+  file_handler.download_users
+  file_path = file_handler.local_path(filename: FileHandler::USERS_FILENAME)
+  mails_to = File.open(file_path, "r:UTF-8", &:read).split(",")
 
-  mails_to = File.open(FileHandler::USERS_LOCAL_PATH, "r:UTF-8", &:read).split(",")
   send_email(ENV["EMAIL_ADDRESS"], message, mails_to)
 end
