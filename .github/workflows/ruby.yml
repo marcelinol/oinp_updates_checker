@@ -13,8 +13,16 @@ jobs:
         uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.5.x
-      - name: Build and test
+      - name: Build, test and report coverage
         run: |
           gem install bundler
           bundle install --jobs 4 --retry 3
           bundle exec rspec
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v2.4.0
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        with:
+          coverageCommand: bundle exec rspec
+          debug: true
+          # https://docs.codeclimate.com/docs/github-actions-test-coverage
