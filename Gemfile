@@ -3,7 +3,9 @@ source "https://rubygems.org"
 gem "aws-sdk-s3", "~> 1"
 gem "capybara"
 gem "dotenv"
+gem "pg", require: false
 gem "selenium-webdriver"
+gem "sequel", require: false
 gem "tlsmail"
 
 group :development, :test do

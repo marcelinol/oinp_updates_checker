@@ -1,8 +1,13 @@
 require "capybara/dsl"
 require "capybara"
+require "sequel"
 require_relative "mailer"
 require_relative "custom_logger"
 require_relative "file_handler"
+
+# For the DB (move it to the db client later)
+require "dotenv"
+Dotenv.load("#{__dir__}/.env")
 
 Capybara.run_server = false
 Capybara.current_driver = :selenium_headless
@@ -18,27 +23,46 @@ class Crawler
 
   def run
     @custom_logger.log_start
-    pagebody = read_page_body
+    page_body = read_page_body
+    previous_page_body = db_client[:readings].order(:timestamp).last[:content]
+    # Comparing the whole string was causing problems with telephone numbers not being loaded
+    # so I'm now comparing only the first 1k characters, that should be enough to identify changes
+    # in the page body
+    chars_to_compare = 1000
+    page_body_changed = page_body[0..chars_to_compare] != previous_page_body[0..chars_to_compare]
 
-    @file_handler.download_saved_pagebody
-    previous_pagebody = File.open(@file_handler.local_path(filename: FileHandler::PAGEBODY_FILENAME), "r:UTF-8", &:read)
-    pagebody_changed = pagebody != previous_pagebody
+    puts "changed? #{page_body_changed}"
+    if page_body_changed
+      db_client[:readings].insert(
+        content: page_body,
+        timestamp: Time.now.getutc.to_i
+      )
 
-    if pagebody_changed
-      @file_handler.save_pagebody_for_debugging
+      diff = page_bodies_diff(page_body, previous_page_body)
+      puts "diff: #{diff}"
 
-      @file_handler.save_new_pagebody(pagebody)
-
-      diff = pagebodies_diff(pagebody, previous_pagebody)
       send_email_about_oinp_updates(diff)
     end
 
-    @custom_logger.log_end(pagebody_changed)
+    @custom_logger.log_end(page_body_changed)
   rescue => e
     @custom_logger.log_error(e)
   end
 
   private
+
+  # TODO: create DB client class
+  def db_client
+    @_db_client ||= Sequel.connect(
+      adapter: :postgres,
+      user: ENV["RDS_USERNAME"],
+      password: ENV["RDS_PASSWORD"],
+      host: ENV["RDS_HOST"],
+      port: ENV["RDS_PORT"],
+      database: "postgres",
+      max_connections: 10,
+    )
+  end
 
   def read_page_body
     visit("/")
@@ -46,9 +70,9 @@ class Crawler
     find("#pagebody").text
   end
 
-  def pagebodies_diff(pagebody, previous_pagebody)
-    repetition_starts = (pagebody.length - previous_pagebody.length) + 10 # + 10 because there is the month in the beginning of the pagebody "January" that will always be there.
-    pagebody[0..repetition_starts] + " (...)"
+  def page_bodies_diff(page_body, previous_page_body)
+    repetition_starts = (page_body.length - previous_page_body.length) + 10 # + 10 because there is the month in the beginning of the page_body "January" that will always be there.
+    page_body[0..repetition_starts] + " (...)"
   end
 end
 

@@ -5,9 +5,7 @@ Dotenv.load("#{__dir__}/.env")
 # TODO: Separate the file handling and S3 handling in two different classes
 class FileHandler
   BUCKET = "oinp-updates-checker".freeze
-  PAGEBODY_FILENAME = "pagebody.txt".freeze
   LOGS_FILENAME = "run_logs.txt".freeze
-  PAGEBODY_DEBUG_FILENAME = "debug_older_pagebody.txt".freeze
   USERS_FILENAME = "users.txt".freeze
 
   def initialize
@@ -17,28 +15,6 @@ class FileHandler
     )
 
     @bucket = Aws::S3::Resource.new.bucket(BUCKET)
-  end
-
-  ## PAGEBODY
-  def download_saved_pagebody
-    download_file(PAGEBODY_FILENAME)
-  end
-
-  def save_pagebody_for_debugging
-    object = @bucket.object(PAGEBODY_DEBUG_FILENAME)
-    object.upload_file(local_path(filename: PAGEBODY_FILENAME))
-  end
-
-  def save_pagebody_local(pagebody)
-    File.open(local_path(filename: PAGEBODY_FILENAME), "w:UTF-8") do |file|
-      file.write(pagebody)
-    end
-  end
-
-  def save_new_pagebody(pagebody)
-    save_pagebody_local(pagebody)
-
-    upload_file(PAGEBODY_FILENAME)
   end
 
   ## LOGS
