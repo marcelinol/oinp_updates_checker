@@ -2,8 +2,7 @@ require "capybara/dsl"
 require "capybara"
 require "sequel"
 require_relative "mailer"
-require_relative "custom_logger"
-require_relative "file_handler"
+require_relative "default_logger"
 
 # For the DB (move it to the db client later)
 require "dotenv"
@@ -16,13 +15,12 @@ Capybara.app_host = "https://www.ontario.ca/page/2020-ontario-immigrant-nominee-
 class Crawler
   include Capybara::DSL
 
-  def initialize
-    @file_handler = FileHandler.new
-    @custom_logger = CustomLogger.new(@file_handler)
+  def initialize(logger)
+    @logger = logger
   end
 
   def run
-    @custom_logger.log_start
+    @logger.info("Crawling started")
     page_body = read_page_body
     previous_page_body = db_client[:readings].order(:timestamp).last[:content]
     # Comparing the whole string was causing problems with telephone numbers not being loaded
@@ -44,12 +42,24 @@ class Crawler
       send_email_about_oinp_updates(diff)
     end
 
-    @custom_logger.log_end(page_body_changed)
+    log_end(page_body_changed)
   rescue => e
-    @custom_logger.log_error(e)
+    puts e
+    @logger.error(e)
   end
 
   private
+
+  def log_end(updated)
+    message = "Crawling Finished."
+    if updated
+      message << " THERE IS A NEW UPDATE."
+    else
+      message << " No new updates."
+    end
+
+    @logger.info(message)
+  end
 
   # TODO: create DB client class
   def db_client
@@ -76,4 +86,5 @@ class Crawler
   end
 end
 
-Crawler.new.run
+logger = DefaultLogger.new
+Crawler.new(logger).run

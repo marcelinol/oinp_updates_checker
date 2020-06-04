@@ -1,12 +1,13 @@
 source "https://rubygems.org"
 
 gem "aws-sdk-s3", "~> 1"
-gem "capybara"
-gem "dotenv"
+gem "capybara", require: false
+gem "dotenv", require: false
+gem "logstash-logger", require: false
 gem "pg", require: false
-gem "selenium-webdriver"
+gem "selenium-webdriver", require: false
 gem "sequel", require: false
-gem "tlsmail"
+gem "tlsmail", require: false
 
 group :development, :test do
   gem "byebug"

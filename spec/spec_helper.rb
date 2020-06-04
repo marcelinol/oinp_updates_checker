@@ -3,8 +3,8 @@ SimpleCov.start do
   track_files '**/*.rb'
 end
 
-require_relative "../custom_logger.rb"
 require_relative "../file_handler.rb"
+require_relative "../default_logger.rb"
 require_relative "../vcr_setup"
 require "webmock/rspec"
 

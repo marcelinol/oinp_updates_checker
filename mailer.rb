@@ -1,15 +1,15 @@
-require 'net/smtp'
-require 'tlsmail'
+require "net/smtp"
+require "tlsmail"
 require_relative "file_handler"
-require 'dotenv'
+require "dotenv"
 Dotenv.load("#{__dir__}/.env")
 
 def send_email(from, mailtext, to)
   configs = {
-    server_address: 'smtp.gmail.com',
-    domain: 'gmail.com',
-    username: ENV['EMAIL_ADDRESS'],
-    password: ENV['EMAIL_PASSWORD'],
+    server_address: "smtp.gmail.com",
+    domain: "gmail.com",
+    username: ENV["EMAIL_ADDRESS"],
+    password: ENV["EMAIL_PASSWORD"],
     port: 587,
     authentication: :plain
   }
