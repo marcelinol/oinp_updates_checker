@@ -16,6 +16,7 @@ unless DB.table_exists?(:readings)
   DB.create_table :readings do
     primary_key :id
     String :content
-    Integer :timestamp
+    Timestamp :timestamp
+    Boolean :content_changed
   end
 end

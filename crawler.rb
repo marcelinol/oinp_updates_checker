@@ -30,12 +30,13 @@ class Crawler
     page_body_changed = page_body[0..chars_to_compare] != previous_page_body[0..chars_to_compare]
 
     puts "changed? #{page_body_changed}"
-    if page_body_changed
-      db_client[:readings].insert(
-        content: page_body,
-        timestamp: Time.now.getutc.to_i
-      )
+    db_client[:readings].insert(
+      content: page_body,
+      timestamp: Time.now.getutc,
+      content_changed: page_body_changed
+    )
 
+    if page_body_changed
       diff = page_bodies_diff(page_body, previous_page_body)
       puts "diff: #{diff}"
 
